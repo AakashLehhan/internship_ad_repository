@@ -1,31 +1,75 @@
-import Book from './book.js';
-//const express = require('express');
 import express from 'express';
-
+import { json } from "express";
+import Product from "./app/product.js";
+import path from "path";
+const __dirname = path.resolve(path.dirname(''));
 const server = express();
+const port = 3000;
+const server_message = `http://localhost:3000/ started`;
+const product_list = [];
+product_list.push(new Product("p101", "Pepsi 500ml", 30.0));
+product_list.push(new Product("p102", "Thumsup 500ml", 30.0));
+product_list.push(new Product("p103", "Sprite 500ml", 30.0));
+server.use(express.urlencoded({ extended: true }));
+server.use(express.json());
 
-const bookArr = [];
-bookArr.push(new Book('Book 1', 'Author 1', '12345'));
-bookArr.push(new Book('Book 2', 'Author 2', '22345'));
-bookArr.push(new Book('Book 3', 'Author 3', '32345'));
-bookArr.push(new Book('Book 4', 'Author 4', '42345'));
-bookArr.push(new Book('Book 5', 'Author 5', '52345'));
-
-server.get("/bookArr", (req, res) => {
-    res.setHeader('Content-Type', 'application/json');
-    res.send(bookArr);
+server.get('/', (req, resp) => {
+    resp.setHeader('Content-Type', 'text/html');
+    resp.sendFile(path.join(__dirname, '/index.html'));
 });
-server.get("/bookArr/:isbn", (req, res) => {
-    res.setHeader('Content-Type', 'application/json');
-    const book = bookArr.find(b => b.isbn === req.params.isbn);
+server.get('/style.css', (req, resp) => {
+    resp.setHeader('Content-Type', 'text/css');
 
-    if (book) {
-        res.send(book);
-    } else {
-        res.status(404).send("Book not found!");
+})
+server.get('/main.js', (req, resp) => {
+    resp.setHeader('Content-Type', 'application/javascript');
+    resp.sendFile(path.join(__dirname + "/js/main.js"));
+})
+
+
+server.get('/products', (req, resp) => {
+    resp.setHeader('Content-Type', 'application/json');
+    resp.send(product_list);
+});
+server.get('/products/:pid', (req, resp) => {
+    resp.setHeader('Content-Type', 'application/json');
+    const pid = req.params.pid;
+    const product = product_list.find(p => p.pid === pid);
+    if (product)
+        resp.send(product);
+    else
+        resp.status(404).send(pid + " Not Found on Server");
+});
+server.put('/products/:pid/:unit_price', (req, resp) => {
+    resp.setHeader('Content-Type', 'application/json');
+    const pid = req.params.pid;
+    const product = product_list.find(p => p.pid === pid);
+    if (product) {
+        product.unit_price = req.params.unit_price;
+        resp.send(JSON.stringify(product) + " updated with new price");
+    }
+    else {
+        resp.status(404).send(pid + " No product found");
+    }
+
+
+});
+server.delete('/products/:pid', (req, resp) => {
+    resp.setHeader('Content-Type', 'application/json');
+    const pid = req.params.pid;
+    product_list.forEach(product => {
+        if (product.pid === req.params.pid) {
+            products.pop();
+        }
+    });
+});
+server.post('/products/add', (req, resp) => {
+    resp.setHeader('Content-Type', 'application/json');
+    const newProduct = { "pid": req.body.pid, "pname": req.body.pname, "unit_price": req.body.unit_price }
+    if (newProduct) {
+        const n = product_list.push(newProduct);
+        if (n > 0) resp.send(JSON.stringify(newProduct) + " added in products record");
+        else resp.status(500).send(JSON.stringify(newProduct) + " not added in record")
     }
 });
-
-server.listen(3000, () => {
-    console.log("Server started");
-});
+server.listen(port, () => { console.log(server_message); })
