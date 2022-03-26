@@ -1,0 +1,20 @@
+<!DOCTYPE hibernate-configuration PUBLIC
+"-//Hibernate/Hibernate Configuration DTD 5.3//EN"
+"http://www.hibernate.org/dtd/hibernate-configuration-5.3.dtd">
+<hibernate-configuration>
+<session-factory>
+<property name="dialect">org.hibernate.dialect.Oracle9Dialect</property>
+<property name="connection.url">jdbc:oracle:thin:@localhost:1521:xe</property>
+<property name="connection.username">c##aduser</property>
+<property name="connection.password">root</property>
+<property name="connection.driver_class">oracle.jdbc.driver.OracleDriver</property>
+<mapping class="com.training.demo.model.Product" />
+<property name="show_sql">true</property>
+<property name="hbm2ddl.auto">update</property>
+<!-- validate,create,createordrop,drop,update-->
+<!-- Update TAble already available in database -->
+<!-- Create if exist drop and create new -->
+<!-- Createordrop for the sessionFactory available keep the table else drop -->
+
+</session-factory>
+</hibernate-configuration>
